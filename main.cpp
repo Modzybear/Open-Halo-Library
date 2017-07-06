@@ -1,5 +1,12 @@
-#include <iostream>
+/*
+	Andrew Burnett
+	Copywrite (C) Andrew Burnett
+	Released under GLP license
+	June 2017
+*/
+
 #include "cache.h"
+#include <iostream>
 
 using namespace std;
 
