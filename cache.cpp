@@ -29,8 +29,8 @@ bool cache::open (char * file_path)
 	else
 	{
 		return cache::parse (map);
-		fclose (map);
 	}
+	fclose (map);
 }
 
 
@@ -51,72 +51,68 @@ bool cache::parse (FILE * map)
 		new (map_buffer +
 				(i_header->element_array -
 				 RETAIL_MEMORY_ADDRESS)) index_element[i_header->tag_count];
-
-	extract_paths();
 	return true;
 }
 
-void cache::list_tags ()
+bool cache::extract_tag(int index, std::string root_path)
 {
-	boost::filesystem::path dir("tags");
-	boost::filesystem::create_directory(dir);
-	for(int i = 0; i < i_header->tag_count - 1; ++i)
-	{
-		std::string curr = "tags/";
-		for(int j = 0; j < paths[i].size() - 1; ++j)
-		{
-			curr += paths[i][j];
-			boost::filesystem::path direct(curr);
-			boost::filesystem::create_directory(direct);
-			curr += "/";
-		}
+	// Sanity check
+	if (index > i_header->tag_count - 1) { return false; }
 
-		FILE *tag;
-		curr += paths[i][paths[i].size() - 1];
-		curr += ".";
-		char group[5];
-		strncpy(group, (char *) &elements[i].tag_group, 4);
-		group[4] = '\0';
-		std::string grp(group);
-		std::reverse(grp.begin(), grp.end());
-		curr += grp;
-		tag = fopen (curr.c_str(), "w+");
-		//fwrite(buffer, sizeof(char), sizeof(buffer), tag)
-		int size = 0;
-		if (i >= i_header->tag_count - 2)
-		{
-			size = (m_header->cache_length + RETAIL_MEMORY_ADDRESS) - elements[i].tag_block;
-		}
-		else
-		{
-			size = elements[i + 1].tag_block - elements[i].tag_block;
-		}
-		fwrite(map_buffer + (elements[i].tag_block - RETAIL_MEMORY_ADDRESS), sizeof(char), size, tag);
-		fclose(tag);
-	}
-}
-
-void cache::extract_paths(int index)
-{
-	if (index > i_header->tag_count - 1) { return; }
-
-	char *tag_path =
+	// Get the string representing the directory that holds the tag
+	char * raw_path =
 		new (map_buffer +
 				(elements[index].tag_path - RETAIL_MEMORY_ADDRESS)) char;
-	std::string path(tag_path);
+	std::string path(raw_path);
+	raw_path = NULL; // The buffer is owned by another object
 
-	vector<std::string> directories;
-	int p = 0;
-
-	while((p = path.find("\\")) != std::string::npos)
+	// Check for invaild (non-Windows) path
+	if (path.find("/") != std::string::npos)
 	{
-		directories.push_back(path.substr(0, p));
-		path.erase(0, p + 1);
+		return false;
 	}
-	directories.push_back(path);
-	paths.push_back(directories);
 
-	extract_paths(index + 1);
+	// Fix the Windows-based path string and
+	// get the containing directory
+	std::replace(path.begin(), path.end(), '\\', '/');
+	path = root_path + path;
+	int dir_pos = path.find_last_of("/");
+	std::string dir_path = path.substr(0, dir_pos);
+
+	// Create the directories
+	boost::filesystem::create_directories(dir_path);
+
+	// Create tag file
+	path += ".";
+	std::string group = std::string((char *) &elements[index].tag_group);
+	group = group.substr(0, 4);
+	std::reverse(group.begin(), group.end());
+	path += group;
+
+	// SBSP data is stored outside the tag data block.
+	// Therefore we cannot extract it yet. Skip if called on SBSP tag.
+	if (group == "sbsp")
+	{
+		return false;
+	}
+
+	// Create tag file and copy data
+	FILE * tag;
+	tag = fopen (path.c_str(), "w+");
+
+	int size = elements[index + 1].tag_block - elements[index].tag_block;
+	if (index >= i_header->tag_count - 2)
+	{
+		size = (m_header->cache_length + RETAIL_MEMORY_ADDRESS) - elements[index].tag_block;
+	}
+
+	fwrite(map_buffer + (elements[index].tag_block - RETAIL_MEMORY_ADDRESS), sizeof(char), size, tag);
+	fclose(tag);
+}
+
+int cache::tag_count()
+{
+	return i_header->tag_count;
 }
 
 cache::~cache ()
@@ -136,7 +132,12 @@ int main (int argc, char *argv[])
 	else
 	{
 		cache cache_file(argv[1]);
-		cache_file.list_tags ();
+
+		// Test for extracting all tag files
+		for (int i = 0; i < cache_file.tag_count() - 1; ++i)
+		{
+			cache_file.extract_tag(i);
+		}
 	}
 }
 

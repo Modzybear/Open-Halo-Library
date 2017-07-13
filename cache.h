@@ -10,6 +10,8 @@
 
 #include <stdint.h>
 #include <stdio.h>
+#include <vector>
+#include <string>
 #include "datatypes.h"
 
 const uint32_t RETAIL_MEMORY_ADDRESS = 0x40440000;
@@ -41,7 +43,7 @@ struct index_header
   uint32_t tag_count;		//Number of tag array elements
   uint32_t vertice_count;	//Number of vertices
   uint32_t vertice_pointer;	//File pointer to the vertices
-  uint32_t indice_count;	//Number of indices 
+  uint32_t indice_count;	//Number of indices
   uint32_t indice_pointer;	//File pointer relative to the verticie pointer.
   uint32_t model_data_length;	//Total length of all model data
   uint32_t tag;			//'sgat' in ascii
@@ -52,7 +54,7 @@ struct index_element
   uint32_t tag_group;		//Or first class
   uint32_t tag_parent;		//Or second class
   uint32_t third_class;		//Sounds about right
-  ident id;			//Unique tag identity 
+  ident id;			//Unique tag identity
   uint32_t tag_path;		//Memory pointer to the tag name/file path
   uint32_t tag_block;		//Memory pointer to the actual tag data
   char padding[4];
@@ -66,18 +68,24 @@ public:
   index_header *i_header;	// Index header
   index_element *elements;	// Index elements
 
-    cache ();			// init
+    cache (char *);			// init
    ~cache ();			// Clean things up
   void list_tags ();
   bool open (char *);		// Parse a map when given its file path
   bool parse (FILE *);		// Do the actual parsing
 
 private:
+// Utilities
+  void extract_paths(int index = 0);
+
+// Utility data
+  vector< vector<std::string> > paths;
+
 // All the data sections of a Halo cache file
   char *head_buffer;		// Stores the header data
   char *SBSP_buffer;		// Stores all BSP data, scenario must be read before its populated
   char *resource_buffer;	// Bitmaps and sounds that are stored internally
-  char *model_data;		// Verts and their triangles 
+  char *model_data;		// Verts and their triangles
   char *map_buffer;		// All tag data
 };
 
