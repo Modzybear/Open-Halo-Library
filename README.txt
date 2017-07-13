@@ -1,7 +1,6 @@
 Open Halo Library
 Summer 2017
 Andrew Burnett
-andrew.r.burnett@gmail.com
 
 An open library for parsing, decompiling, and editing Halo: Combat Evolved maps.
 
