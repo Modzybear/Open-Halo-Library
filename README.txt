@@ -1,13 +1,14 @@
 Open Halo Library
 Copyright (C) 2017 Andrew Burnett
 
+DESCRIPTION:
 An open library for parsing, decompiling, and editing Halo: Combat Evolved maps.
 
+COMPILING:
 To compile, you'll need the BOOST library.
 Use the compile flags: -lboost_filesystem -lboost_system
 
 WEEK THREE PROGRESS REPORT:
-
 Basic cache file (.map) parsing is complete. Still need to
 read and use the raw data sections of the file. This cannot be
 done until parsing of certain tag files themselves is completed.
@@ -23,5 +24,4 @@ The tags folder becomes nearly identical to what the original Halo
 developers must have saw.
 
 TO DO:
-
 Add parsing of certain tag classes, work with raw data.
