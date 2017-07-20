@@ -1,5 +1,9 @@
 Open Halo Library
 Copyright (C) 2017 Andrew Burnett
+Released on the BSD three-clause license. See LICENSE file for more information.
+
+THE CURRENT CODE IS FOR LEARNING PURPOSES ONLY.
+NOT READY FOR GENERAL USE.
 
 DESCRIPTION:
 An open library for parsing, decompiling, and editing Halo: Combat Evolved maps.
