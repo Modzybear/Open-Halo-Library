@@ -1,5 +1,5 @@
 # Open Halo Library
-Copyright &copy 2017 Andrew Burnett
+Copyright &copy; 2017 Andrew Burnett
 
 THE CURRENT CODE IS FOR LEARNING PURPOSES ONLY.
 NOT READY FOR GENERAL USE.
