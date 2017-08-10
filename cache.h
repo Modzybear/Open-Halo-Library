@@ -20,6 +20,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include <vector>
 #include <string>
 #include "datatypes.h"
+#include "scnr.h"
 
 const uint32_t RETAIL_MEMORY_ADDRESS = 0x40440000;
 const uint32_t DEMO_MEMORY_ADDRESS = 0x4BF10000;
@@ -76,7 +77,9 @@ class cache
 		bool open (char *);		// Parse a map when given its file path
 		bool parse (FILE *);		// Do the actual parsing
 		bool extract_tag(int, std::string root_path = "tags/");
-    int tag_count();
+		int tag_count();
+		char * buffer(int);
+
 
 	private:
 		// Useful data
@@ -90,6 +93,7 @@ class cache
 		char *resource_buffer;	// Bitmaps and sounds that are stored internally
 		char *model_data;		// Verts and their triangles
 		char *map_buffer;		// All tag data
+		scnr * scenario; // Supertag
 };
 
 #endif

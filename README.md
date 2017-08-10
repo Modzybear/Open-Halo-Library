@@ -6,12 +6,23 @@ NOT READY FOR GENERAL USE.
 
 ## Description
 
-An open library for parsing, decompiling, and editing Halo: Combat Evolved maps.
+An open library for parsing and decompiling Halo: Combat Evolved maps.
+
+## Use
+
+As of this release, OHL can be used to dump all tag files into the folders
+and directories they were originally housed in. These raw tag files can
+be edited or used for reverse engineering their data structures.
+
+THe primary user of OHL would be anyone interested in reverse engineering
+the blam! game engine, which runs the original Halo and Stubb's Zombie.
 
 ## Compiling
 
 To compile, you'll need the BOOST library.
 Use the compile flags: -lboost_filesystem -lboost_system
+You may also utilize the makefile included in this rep. by typing "make"
+on a Linux-basd system with this feature.
 
 ## License
 
@@ -19,7 +30,7 @@ Released on the BSD three-clause license. See LICENSE file for more information.
 
 ## TO DO
 
-Add parsing of certain tag classes, work with raw data.
+Continue to add the data structures for tags of particular interest.
 
 WEEK THREE PROGRESS REPORT:
 Basic cache file (.map) parsing is complete. Still need to

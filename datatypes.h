@@ -19,21 +19,21 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 using namespace std;
 
-struct blockPointer{
-	uint32_t blockCount;
+struct block_pointer {
+	uint32_t block_count;
 	uint32_t pointer;
 	char editorData[4]; //only used internally by Guerilla.
 } __attribute__ ((packed)) ;
 
-struct ident{
+struct ident {
 	uint16_t id;
-	uint16_t tagNumber;
+	uint16_t tag_number;
 } __attribute__ ((packed)) ;
 
-struct reference{
-	uint32_t tagGroup; //Or 'first class'
-	uint32_t namePointer; //Memory pointer to tag name/file path
-	char referencePathLength[4]; //only used internally by Guerilla.
+struct dependency {
+	uint32_t tag_group; //Or 'first class'
+	uint32_t name_pointer; //Memory pointer to tag name/file path
+	char reference_path_length[4]; //only used internally by Guerilla.
 	ident id;
 } __attribute__ ((packed)) ;
 
@@ -48,10 +48,33 @@ struct vertex {
 	float z;
 } __attribute__ ((packed)) ;
 
-struct radianRotation {
+struct radian_rotation {
 	float y;
 	float p;
 	float r;
+} __attribute__ ((packed)) ;
+
+struct colorbyte
+{
+	uint8_t r;
+	uint8_t g;
+	uint8_t b;
+	uint8_t a;
+} __attribute__ ((packed)) ;
+
+struct colorrgb
+{
+	float r;
+	float g;
+	float b;
+} __attribute__ ((packed)) ;
+
+struct colorargb
+{
+	float r;
+	float g;
+	float b;
+	float a;
 } __attribute__ ((packed)) ;
 
 #endif

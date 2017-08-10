@@ -58,6 +58,11 @@ bool cache::parse (FILE * map)
 		new (map_buffer +
 				(i_header->element_array -
 				 RETAIL_MEMORY_ADDRESS)) index_element[i_header->tag_count];
+
+  // Read SBSPs from the scenario tag
+	scenario = new scnr(map_buffer + (elements[0].tag_block - RETAIL_MEMORY_ADDRESS));
+	scenario->tag_header = new (scenario->buffer) scnr_header;
+	cout << "There is "<< scenario->tag_header->skies.block_count << " sky tag in the scenario.\n";
 	return true;
 }
 
@@ -122,6 +127,11 @@ bool cache::extract_tag(int index, std::string root_path)
 int cache::tag_count()
 {
 	return i_header->tag_count;
+}
+
+char * cache::buffer(int index)
+{
+	return map_buffer + (elements[index].tag_block - RETAIL_MEMORY_ADDRESS);
 }
 
 cache::~cache ()
