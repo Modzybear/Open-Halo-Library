@@ -10,12 +10,12 @@ An open library for parsing and decompiling Halo: Combat Evolved maps.
 
 ## Use
 
-As of this release, OHL can be used to dump all tag files into the folders
-and directories they were originally housed in. These raw tag files can
-be edited or used for reverse engineering their data structures.
+As of this release, OHL can be used to dump all tag files into the directories they were originally housed in. These raw tag files can
+be edited or used for reverse engineering their data structures. This dump excludes
+SBSP tags, which are stored differently.
 
-THe primary user of OHL would be anyone interested in reverse engineering
-the blam! game engine, which runs the original Halo and Stubb's Zombie.
+The primary user of OHL would be anyone interested in reverse engineering
+the blam! game engine, which runs the original Halo and the Stubb's Zombie game.
 
 ## Compiling
 
