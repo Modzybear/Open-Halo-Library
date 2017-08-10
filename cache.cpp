@@ -62,7 +62,16 @@ bool cache::parse (FILE * map)
   // Read SBSPs from the scenario tag
 	scenario = new scnr(map_buffer + (elements[0].tag_block - RETAIL_MEMORY_ADDRESS));
 	scenario->tag_header = new (scenario->buffer) scnr_header;
-	cout << "There is "<< scenario->tag_header->skies.block_count << " sky tag in the scenario.\n";
+	int sky_count = scenario->tag_header->skies.block_count;
+	if (sky_count > 1)
+	{
+		cout << "There are "<< sky_count << " sky tags in the scenario.\n";
+	}
+	else
+	{
+		cout << "There is "<< sky_count << " sky tag in the scenario.\n";
+	}
+
 	return true;
 }
 
