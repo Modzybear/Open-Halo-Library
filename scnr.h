@@ -7,9 +7,9 @@
 class scnr
 {
 	public:
-		scnr(char *);
+		scnr(char *, int);
+		void parse();
 
-		char * buffer;
 		scnr_header * tag_header;
 		skies_block * skies;
 		child_scenarios_block * child_scenarios;
@@ -61,6 +61,9 @@ class scnr
 		cutscene_camera_points_block * cutscene_camera_points;
 		cutscene_titles_block * cutscene_titles;
 		structure_bsps_block * structure_bsps;
+
+		char * buff;
+		int offset;
 };
 
 #endif

@@ -15,19 +15,36 @@
  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+/*		** Cache class ***
+Implements the cache class methods.
+*/
+
 #include <iostream>
+#include <stdio.h>
+#include <vector>
+#include <string>
 #include "cache.h"
 #include <boost/filesystem.hpp>
 
+// Take in a file path to a map file and parse it into
+// the cache object upon object creation.
 cache::cache (char * file)
 {
-	this->open(file);
+	bool success = this->open(file);
+	if (!success)
+	{
+		// The map file failed to load, therefore the object must now be NULL.
+		*this = NULL;
+	}
 }
 
-bool cache::open (char * file_path)
+// Takes in the file path to a map file and calls parse to
+// populates the cache object.
+// Returns false if the map file failed to be parsed.
+bool cache::open (char * path)
 {
-	FILE *map;
-	map = fopen (file_path, "r");
+	FILE * map;
+	map = fopen (path, "r");
 	if (map == NULL)
 	{
 		perror ("Error opening file");
@@ -40,7 +57,8 @@ bool cache::open (char * file_path)
 	fclose (map);
 }
 
-
+// Takes in a file object, a map file, and parses the file to populates
+// the cache object.
 bool cache::parse (FILE * map)
 {
 	m_header = new header;
@@ -48,41 +66,52 @@ bool cache::parse (FILE * map)
 	fread ((char *) m_header, 0x1, 0x800, map);	// Read into buffer
 
 	fseek (map, m_header->tag_array, SEEK_SET);	// Go to map data
-	map_buffer = new char[m_header->cache_length];	// Create the map buffer
-	fread (map_buffer, 0x1, m_header->cache_length, map);	// Read into buffer
+	assets = new char[m_header->cache_length];	// Create the map buffer
+	fread (assets, 0x1, m_header->cache_length, map);	// Read into buffer
+	resources = new char[m_header->tag_array];
+	fseek (map, 0, SEEK_SET);
+	fread (resources, 0x1, m_header->tag_array, map);
 
 	// Read the index within the tag buffer
-	i_header = new (map_buffer) index_header;	// Parse the header
+	i_header = new (assets) index_header;	// Parse the header
 	// Get all tag info:
 	elements =
-		new (map_buffer +
+		new (assets +
 				(i_header->element_array -
 				 RETAIL_MEMORY_ADDRESS)) index_element[i_header->tag_count];
 
   // Read SBSPs from the scenario tag
-	scenario = new scnr(map_buffer + (elements[0].tag_block - RETAIL_MEMORY_ADDRESS));
-	scenario->tag_header = new (scenario->buffer) scnr_header;
-	int sky_count = scenario->tag_header->skies.block_count;
+	scenario = new scnr(buffer(0), offset(0));
+
+	/* Testing code to see if the structures line up with the actual data. */
+	int sky_count = scenario->tag_header->structure_bsps.block_count;
 	if (sky_count > 1)
 	{
-		cout << "There are "<< sky_count << " sky tags in the scenario.\n";
+		std::cout << "There are "<< sky_count << " sbsp tags in the scenario.\n";
 	}
 	else
 	{
-		cout << "There is "<< sky_count << " sky tag in the scenario.\n";
+		std::cout << "There is "<< sky_count << " sbsp tag in the scenario.\n";
 	}
+
+	int sbsp_start = scenario->structure_bsps[0].bsp_start;
+	std::cout << "The sbsp starts at: " << sbsp_start << std::endl;
 
 	return true;
 }
 
+// Use the loaded map to extract packed tag data to a specified folder.
+// Takes in an index, the position of the index element for the tag.
+// Optionally takes in a path to extract the tag to. Default is '/tags.'
 bool cache::extract_tag(int index, std::string root_path)
 {
-	// Sanity check
+	// Sanity checks
+	if (this == NULL) { return false; }
 	if (index > i_header->tag_count - 1) { return false; }
 
 	// Get the string representing the directory that holds the tag
 	char * raw_path =
-		new (map_buffer +
+		new (assets +
 				(elements[index].tag_path - RETAIL_MEMORY_ADDRESS)) char;
 	std::string path(raw_path);
 	raw_path = NULL; // The buffer is owned by another object
@@ -90,7 +119,7 @@ bool cache::extract_tag(int index, std::string root_path)
 	// Check for invaild (non-Windows) path
 	if (path.find("/") != std::string::npos)
 	{
-		cout << "Fail to extract tag with invalid path: " << path;
+		std::cout << "Fail to extract tag with invalid path: " << path;
 		return false;
 	}
 
@@ -111,14 +140,6 @@ bool cache::extract_tag(int index, std::string root_path)
 	std::reverse(group.begin(), group.end());
 	path += group;
 
-	// SBSP data is stored outside the tag data block.
-	// Therefore we cannot extract it yet. Skip if called on SBSP tag.
-	if (group == "sbsp")
-	{
-		cout << "Can't extract SBSP tags yet.\n";
-		return false;
-	}
-
 	// Create tag file and copy data
 	FILE * tag;
 	tag = fopen (path.c_str(), "w+");
@@ -129,33 +150,53 @@ bool cache::extract_tag(int index, std::string root_path)
 		size = (m_header->cache_length + RETAIL_MEMORY_ADDRESS) - elements[index].tag_block;
 	}
 
-	fwrite(map_buffer + (elements[index].tag_block - RETAIL_MEMORY_ADDRESS), sizeof(char), size, tag);
+	// Handle SBSP packed tag data extraction. The SBSP data is stored in the resources buffer.
+	if (group == "sbsp")
+	{
+		int sbsp_index = 0;
+		size = scenario->structure_bsps[sbsp_index].bsp_size;
+		fwrite(resources + scenario->structure_bsps[sbsp_index].bsp_start, sizeof(char), size, tag);
+	}
+	else
+	{
+		fwrite(assets + offset(index), sizeof(char), size, tag);
+	}
 	fclose(tag);
 }
 
+// Return the number of tags in the cache file.
 int cache::tag_count()
 {
 	return i_header->tag_count;
 }
 
+// TEMP
 char * cache::buffer(int index)
 {
-	return map_buffer + (elements[index].tag_block - RETAIL_MEMORY_ADDRESS);
+	return assets + offset(index);
 }
 
+// TEMP
+int cache::offset(int index)
+{
+	return elements[index].tag_block - RETAIL_MEMORY_ADDRESS;
+}
+
+// Clear the buffer but not really because I'll write a smart destructor later.
 cache::~cache ()
 {
-	if (map_buffer)
+	if (assets)
 	{
-		delete map_buffer;
+		delete assets;
 	}
 }
 
+// Testing main for unit testing.
 int main (int argc, char *argv[])
 {
 	if (argc < 2)
 	{
-		cout << "No map file given.";
+		std::cout << "No map file given.";
 	}
 	else
 	{
