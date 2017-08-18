@@ -37,6 +37,12 @@ To learn more about BOOST: http://www.boost.org/
 
 Released on the BSD three-clause license. See LICENSE file for more information.
 
+## Sister Project
+For this project, I discovered I needed a separate project to generate
+the code for the tag structures. The second project is located at:
+
+https://github.com/Modzybear/Lazy-Grunt
+
 ## TO DO
 
 Continue to add the data structures for tags of particular interest.
