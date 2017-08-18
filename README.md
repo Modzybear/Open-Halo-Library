@@ -1,9 +1,6 @@
 # Open Halo Library
 Copyright &copy; 2017 Andrew Burnett
 
-THE CURRENT CODE IS FOR LEARNING PURPOSES ONLY.
-NOT READY FOR GENERAL USE.
-
 ## Description
 
 An open library for parsing and decompiling Halo: Combat Evolved maps.
@@ -19,7 +16,7 @@ the blam! game engine, which runs the original Halo and the Stubb's Zombie game.
 
 ## Use
 
-To use the current code, you can play with the testing main in cache.cpp.
+To use the current code, you can play with the testing main in map.cpp.
 After the executable is compiled, you can feed in a map by typing:
 "./ohl <path to mapfile>"
 
@@ -30,7 +27,7 @@ data contained in the map file will be in the tags folder.
 
 To compile, you'll need the BOOST library.
 Use the compile flags: -lboost_filesystem -lboost_system
-You may also utilize the makefile included in this rep. by typing "make"
+You may also utilize the makefile included in this repo by typing "make"
 on a Linux-based system with this feature.
 
 ## License

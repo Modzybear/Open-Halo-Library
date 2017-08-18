@@ -32,31 +32,36 @@ The cache class allows for basic map parsing and access to the major sections
 of the two buffers.
 */
 
-//#include <stdio.h>
+#include <stdio.h>
+#include <string>
 #include "datatypes.h"
 #include "scnr.h"
 
 class cache
 {
 	public:
-		cache (char *);			// init
-		~cache ();			// Clean things up
-		bool open (char *);		// Parse a map when given its file path
-		bool parse (FILE *);		// Do the actual parsing
-		bool extract_tag(int, std::string root_path = "tags/"); // Extract tag to folder
+		cache(char *);			// init
+		~cache();			// Clean things up
+		bool open(char *);		// Parse a map when given its file path
+		bool parse(FILE *);		// Do the actual parsing
 		int tag_count(); // Return the number of tags in the map
-		char * buffer(int); // TEMP method to get the resource buffer
+		std::string tag_path(int index); // Return tag path for given tag
+		int tag_group(int index); // Return the group of the tag at the index
+		int tag_length(int index); // Return size of tag at index
+
+		char * resource_buff(); // TEMP method to get the resource buffer
+		char * buffer(int); // TEMP method to get the asset buffer
 		int offset(int); // TEMP method to get a tag's memory offset given its index number
 
+		// The scenario must be parsed with the cache file to extract sbsp tags
+		scnr * scenario; // The supertag
 
 	private:
 		// Useful data
 		header * m_header;		// Map header
 		index_header * i_header;	// Index header
 		index_element * elements;	// Index elements
-
-		// The scenario must be parsed with the cache file to extract sbsp tags
-		scnr * scenario; // The supertag
+		int MEM_OFFSET; // Used for calculating pointers
 
 		// All the data sections of a Halo cache file
 		char * resources;	// Resource buffer
