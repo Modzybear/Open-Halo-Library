@@ -18,7 +18,7 @@ the blam! game engine, which runs the original Halo and the Stubb's Zombie game.
 
 To use the current code, you can play with the testing main in map.cpp.
 After the executable is compiled, you can feed in a map by typing:
-"./ohl <path to mapfile>"
+"./ohl path/to/mapfile"
 
 A new folder will appear named 'tags' in the same directory, and all directories and packed tag
 data contained in the map file will be in the tags folder.
@@ -27,8 +27,11 @@ data contained in the map file will be in the tags folder.
 
 To compile, you'll need the BOOST library.
 Use the compile flags: -lboost_filesystem -lboost_system
+
 You may also utilize the makefile included in this repo by typing "make"
 on a Linux-based system with this feature.
+
+To learn more about BOOST: http://www.boost.org/
 
 ## License
 
@@ -37,6 +40,7 @@ Released on the BSD three-clause license. See LICENSE file for more information.
 ## TO DO
 
 Continue to add the data structures for tags of particular interest.
+
 Add extraction of multiple SBSP tags in maps with more than one.
 
 CURRENT PROGRESS:
